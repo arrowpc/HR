@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var idleTimer: Timer?
     // (60/30) = 2; if your heart rate goes lower than 30, go to a doctor
     private let idleThreshold: TimeInterval = 2.0
+    private var avgBPM: Int?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(
@@ -37,19 +38,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // not sure what that should be
             statusItem.button?.title = "HR"
             return
-            }
+        }
 
         let intervals = zip(taps.dropFirst(), taps)
             .map { $0.timeIntervalSince($1) }
         let avg = intervals.reduce(0, +) / Double(intervals.count)
-        let bpm = Int(round(60.0 / avg))
-
-        statusItem.button?.title = "\(bpm)"
+        avgBPM = Int(round(60.0 / avg))
+        if let bpm = avgBPM {
+            statusItem.button?.title = "\(bpm)"
+        } else {
+            statusItem.button?.title = "HR"
+        }
     }
 
+    // TODO: Save that average somewhere?
     @objc func endMeasurement() {
-        // TODO: Save that average somewhere?
+        idleTimer?.invalidate()
         taps.removeAll()
-        statusItem.button?.title = "HR"
+
+        guard let bpm = avgBPM else {
+            statusItem.button?.title = "HR"
+            return
+        }
+
+        let flashes = 4
+        let flashInterval = 0.25
+
+        func flash(_ count: Int) {
+            if count >= flashes {
+                statusItem.button?.title = "HR"
+                avgBPM = nil
+                return
+            }
+            statusItem.button?.title = (count % 2 == 0) ? "\(bpm)" : " "
+            DispatchQueue.main.asyncAfter(deadline: .now() + flashInterval) {
+                flash(count + 1)
+            }
+        }
+
+        flash(0)
     }
 }
