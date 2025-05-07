@@ -31,7 +31,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             repeats: false
         )
 
-        guard taps.count >= 2 else { return }
+        guard taps.count >= 2 else {
+            // I believe there should be some sort of indication that the user has pressed once,
+            // not sure what that should be
+            statusItem.button?.title = "HR"
+            return
+            }
 
         let intervals = zip(taps.dropFirst(), taps)
             .map { $0.timeIntervalSince($1) }
@@ -42,6 +47,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func endMeasurement() {
+        // TODO: Save that average somewhere?
         taps.removeAll()
+        statusItem.button?.title = "HR"
     }
 }
