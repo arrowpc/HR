@@ -5,7 +5,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var taps: [Date] = []
     private var idleTimer: Timer?
-    private let idleThreshold: TimeInterval = 5.0
+    // (60/30) = 2; if your heart rate goes lower than 30, go to a doctor
+    private let idleThreshold: TimeInterval = 2.0
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(
