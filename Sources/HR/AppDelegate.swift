@@ -8,19 +8,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // (60/30) = 2; if your heart rate goes lower than 30, go to a doctor
     private let idleThreshold: TimeInterval = 2.0
     private var avgBPM: Int?
+    private var statusMenu: NSMenu!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(
             withLength: NSStatusItem.variableLength
         )
+
+        // Create the menu
+        let menu = NSMenu()
+        let quitMenuItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
+        quitMenuItem.target = self
+        menu.addItem(quitMenuItem)
+
         if let btn = statusItem.button {
             btn.title = "HR"
             btn.target = self
-            btn.action = #selector(didTap(_:))
+            btn.action = #selector(handleClick(_:))
+            btn.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        }
+
+        statusMenu = menu
+    }
+
+    @objc func handleClick(_ sender: Any?) {
+        if let event = NSApp.currentEvent {
+            if event.type == .rightMouseUp {
+                // Show menu on right click
+                statusItem.menu = statusMenu
+                statusItem.button?.performClick(nil)
+                statusItem.menu = nil
+            } else {
+                // Handle left click with the original tap behavior
+                didTap()
+            }
         }
     }
 
-    @objc func didTap(_ sender: Any?) {
+    @objc func quit() {
+        NSApplication.shared.terminate(nil)
+    }
+
+    func didTap() {
         let now = Date()
         taps.append(now)
 
