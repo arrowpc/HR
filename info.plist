@@ -13,6 +13,8 @@
   <string>1.0</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
+  <key>CFBundleIconFile</key>
+  <string>HR</string>
   <key>LSUIElement</key>
   <string>1</string>  <!-- hides Dock icon -->
 </dict>
